@@ -73,6 +73,52 @@ h1{margin:0;font-family:var(--f-disp);font-weight:600;font-size:28px;line-height
 .k-study{--k:var(--k-study)}.k-ex{--k:var(--k-ex)}.k-prayer{--k:var(--k-prayer)}.k-school{--k:var(--k-school)}.k-rest{--k:var(--k-rest)}.k-sleep{--k:var(--k-sleep)}
 .note{font-size:12px;color:var(--muted);margin:0}
 @media (prefers-reduced-motion:no-preference){.count{transition:color .3s}}
+
+[hidden]{display:none!important}
+.vw{display:flex;flex-direction:column;gap:16px}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tabs button{border:0;background:transparent;border-radius:9px;padding:9px 4px;font-size:14px;font-weight:500;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card h3{margin:0;font-size:15px;font-weight:600}
+.card p{margin:0}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+.fld input,.fld select,.fld textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+.fld input:focus-visible,.fld select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:5px 10px;font-size:12px}
+.btn.dng{color:var(--k-sleep);border-color:var(--k-sleep)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.msg{font-size:13px;color:var(--muted);min-height:1.4em}
+.msg.bad{color:var(--k-sleep)}
+.msg.ok{color:var(--accent)}
+details.ex{border:1px solid var(--line);background:var(--surface);border-radius:12px}
+details.ex summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:500}
+details.ex summary::-webkit-details-marker{display:none}
+details.ex summary small{color:var(--muted);font-weight:400;font-size:12px;white-space:nowrap}
+details.ex summary::after{content:"+";color:var(--muted);font-size:18px;margin-inline-start:4px}
+details.ex[open] summary::after{content:"\2212"}
+.exb{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.exb p{margin:0}
+.exb ol{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:3px}
+.exb .bad{color:var(--k-sleep)}
+.plan{display:flex;flex-direction:column}
+.plan div{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.plan div:first-child{border-top:0}
+.plan b{font-weight:500}
+.bk{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.bk:first-child{border-top:0}
+.bk .nm{font-weight:500;overflow-wrap:anywhere}
+.bk .mt{font-size:12px;color:var(--muted)}
+.sumout{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);font-size:15px;line-height:1.8;overflow-wrap:anywhere}
+.sumout h3{font-size:16px;margin:10px 0 4px;font-weight:600}
+.sumout h3:first-child{margin-top:0}
+.sumout ul{margin:4px 0;padding-inline-start:20px}
+.sumout p{margin:4px 0}
+.sl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.sl:first-child{border-top:0}
+.sl button.lk{border:0;background:transparent;color:var(--accent);padding:2px 0;text-align:start;font-size:13px}
 </style>
 
 <main class="app">
@@ -86,7 +132,8 @@ h1{margin:0;font-family:var(--f-disp);font-weight:600;font-size:28px;line-height
 
   <div id="banner" role="alert" hidden><span id="bannerText"></span><button id="bannerClose">إغلاق</button></div>
 
-  <nav class="days" id="days" aria-label="أيام الأسبوع"></nav>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="الأقسام"><button data-v="today" role="tab" aria-selected="true" type="button">اليوم</button><button data-v="ex" role="tab" aria-selected="false" type="button">التمارين</button><button data-v="books" role="tab" aria-selected="false" type="button">الكتب</button></nav>
+  <div id="v-today" class="vw"><nav class="days" id="days" aria-label="أيام الأسبوع"></nav>
 
   <section class="now" id="now"></section>
 
@@ -104,7 +151,55 @@ h1{margin:0;font-family:var(--f-disp);font-weight:600;font-size:28px;line-height
     <ol class="tl" id="timeline"></ol>
   </section>
 
-  <p class="note" id="note">التنبيهات تعمل ما دامت هذه الصفحة مفتوحة. أوقات الصلاة محسوبة للدجيل (٣٣.٨٥ شمالاً، ٤٤.٢٣ شرقاً) وقد تختلف دقيقة أو دقيقتين عن التقويم المحلي.</p>
+  <p class="note" id="note">التنبيهات تعمل ما دامت هذه الصفحة مفتوحة. أوقات الصلاة محسوبة للدجيل (٣٣.٨٥ شمالاً، ٤٤.٢٣ شرقاً) وقد تختلف دقيقة أو دقيقتين عن التقويم المحلي.</p></div>
+<div id="v-ex" class="vw" hidden>
+  <section class="card">
+    <h3>برنامج الأسبوع</h3>
+    <div class="plan" id="exPlan"></div>
+    <p class="msg">ابدأ كل تمرين بإحماء ٥ دقائق وأنهِه بإطالة ٥ دقائق. توقف فوراً عند أي ألم حاد.</p>
+  </section>
+  <section class="sec"><h2>الإحماء (٥ دقائق)</h2><div id="exWarm" class="sec"></div></section>
+  <section class="sec"><h2>تمارين القوة</h2><div id="exStr" class="sec"></div></section>
+  <section class="sec"><h2>الكارديو</h2><div id="exCar" class="sec"></div></section>
+  <section class="sec"><h2>الإطالة بعد التمرين</h2><div id="exStr2" class="sec"></div></section>
+</div>
+<div id="v-books" class="vw" hidden>
+  <section class="card">
+    <details id="setDet">
+      <summary><b>إعدادات Gemini</b></summary>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+        <label class="fld" for="gKey">مفتاح Gemini API<input id="gKey" type="password" autocomplete="off" placeholder="الصق مفتاحك هنا"></label>
+        <label class="fld" for="gModel">اسم النموذج<input id="gModel" type="text" dir="ltr" value="gemini-2.5-flash"></label>
+        <div class="acts"><button class="btn pri" id="gSave" type="button">حفظ الإعدادات</button></div>
+        <p class="msg" id="gMsg">المفتاح يُحفظ على هاتفك فقط، ولا يُرفع إلى أي مكان آخر. لا تشاركه مع أحد ولا تضعه داخل GitHub.</p>
+      </div>
+    </details>
+  </section>
+  <section class="card">
+    <h3>إضافة كتاب</h3>
+    <label class="fld" for="bkFile">الملف (PDF أو صورة أو نص)<input id="bkFile" type="file" accept=".pdf,application/pdf,image/*,.txt,.md,text/plain"></label>
+    <label class="fld" for="bkSub">المادة<select id="bkSub"><option>رياضيات</option><option>فيزياء</option><option>كيمياء</option><option>أحياء</option><option>لغة عربية</option><option>إنجليزي</option><option>أخرى</option></select></label>
+    <div class="acts"><button class="btn pri" id="bkAdd" type="button">حفظ الكتاب في التطبيق</button></div>
+    <p class="msg" id="bkMsg"></p>
+  </section>
+  <section class="card">
+    <h3>كتبي</h3>
+    <div id="bkList"><p class="msg">لا توجد كتب بعد. أضف أول كتاب من الأعلى.</p></div>
+  </section>
+  <section class="card" id="sumPanel" hidden>
+    <h3 id="spTitle"></h3>
+    <div class="row2" id="rangeRow">
+      <label class="fld" for="pgFrom">من صفحة<input id="pgFrom" type="number" inputmode="numeric" min="1" value="1"></label>
+      <label class="fld" for="pgTo">إلى صفحة<input id="pgTo" type="number" inputmode="numeric" min="1" value="5"></label>
+    </div>
+    <label class="fld" for="sumLvl">مستوى التلخيص<select id="sumLvl"><option value="short">مختصر</option><option value="mid" selected>متوسط</option><option value="long">مفصل</option></select></label>
+    <div class="acts"><button class="btn pri" id="sumGo" type="button">لخّص</button><button class="btn" id="sumClose" type="button">إغلاق</button></div>
+    <p class="msg" id="sumMsg"></p>
+    <div id="sumOut" class="sumout" hidden></div>
+    <div class="acts" id="sumActs" hidden><button class="btn sm" id="sumCopy" type="button">نسخ الملخص</button></div>
+    <div id="sumSaved"></div>
+  </section>
+</div>
 </main>
 
 <script>
@@ -128,7 +223,7 @@ var B=[
 ['08:00','دراسة صباحية: حفظ ومراجعة صعبة','استغلال هدوء الصباح','study',1],
 ['11:35','الاستعداد والخروج للمدرسة','بدون عجلة','school',1],
 ['12:00','الدوام المدرسي الظهري','متابعة المدرسين','school',0],
-['15:50','العودة للبيت واستراحة','وصول وركود خفيف','rest',0],
+['16:07','العودة للبيت واستراحة','وصول وركود خفيف','rest',0],
 ['16:30','الغداء الرئيسي وراحة','استعادة النشاط','rest',0],
 ['17:30','التمارين الرياضية','تحريك الدورة الدموية','ex',1],
 ['18:15','دراسة مسائية وتجهيز دروس الغد','إنجاز كافة التكاليف','study',1],
@@ -278,5 +373,236 @@ if(NATIVE){
   document.getElementById('note').textContent='التنبيهات تصل حتى والتطبيق مغلق، وتُجدول للأيام السبعة القادمة كل مرة تفتح فيها التطبيق. افتحه مرة في الأسبوع على الأقل. أوقات الصلاة محسوبة للدجيل وقد تختلف دقيقة أو دقيقتين عن التقويم المحلي.';
   scheduleNative(true);
 }
+</script>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var AR=function(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})};
+var X=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+var WARM=[
+{n:'دوران الرقبة والكتفين',d:'٣٠ ثانية',m:'الرقبة والكتفان',s:['قف مستقيماً وأرخِ كتفيك.','أدِر رأسك ببطء في دائرة صغيرة ٥ مرات لكل اتجاه.','ارفع كتفيك نحو الأذنين ثم أدِرهما للخلف ١٠ مرات، ثم للأمام ١٠ مرات.'],x:'تحريك الرقبة بسرعة أو إمالتها للخلف بقوة.',t:'اجعل الحركة بطيئة ومريحة.'},
+{n:'دوران الذراعين',d:'٣٠ ثانية',m:'الكتفان والذراعان',s:['افتح ذراعيك جانباً بمستوى الكتفين.','ارسم دوائر صغيرة ثم أكبر تدريجياً ١٠ مرات للأمام.','اعكس الاتجاه ١٠ مرات للخلف.'],x:'رفع الكتفين نحو الأذنين أثناء الحركة.',t:''},
+{n:'دوران الورك والركبتين',d:'٤٥ ثانية',m:'الورك والركبتان',s:['ضع يديك على خصرك وقدماك بعرض الكتفين.','أدِر الورك في دائرة واسعة ١٠ مرات لكل اتجاه.','ضع يديك على ركبتيك وأدِرهما ببطء ٨ مرات لكل اتجاه.'],x:'تحريك الجسم كله بدل الورك فقط.',t:''},
+{n:'المشي أو الجري في المكان',d:'٦٠ ثانية',m:'الجسم كله والقلب',s:['ابدأ بمشي سريع في مكانك مع رفع الركبتين.','زد السرعة تدريجياً إلى جري خفيف.','حرّك ذراعيك بالتبادل مع الرجلين.'],x:'البدء بسرعة عالية من أول ثانية.',t:'الهدف أن يدفأ جسمك، لا أن تتعب.'},
+{n:'القفز المفتوح (Jumping Jacks)',d:'٤٥ ثانية',m:'الجسم كله',s:['قف والقدمان معاً والذراعان بجانب الجسم.','اقفز وافتح قدميك ورفع ذراعيك فوق رأسك.','اقفز مرة أخرى للعودة إلى الوضع الأول.'],x:'الهبوط بقوة على كعبي القدمين.',t:'اهبط على مشط القدم بركبتين مثنيتين قليلاً.'}
+];
+var STR=[
+{n:'سكوات (Squat)',d:'٣×١٥',m:'الفخذان والأرداف',s:['قف والقدمان بعرض الكتفين وأصابعهما للخارج قليلاً.','ادفع الورك للخلف وانزل كأنك تجلس على كرسي حتى يوازي فخذاك الأرض.','أبقِ الظهر مستقيماً والصدر مرفوعاً.','اصعد بدفع الأرض بكعبيك.'],x:'دخول الركبتين للداخل أو رفع الكعبين عن الأرض.',t:'مد ذراعيك أمامك لتحافظ على التوازن.'},
+{n:'ضغط (Push-up)',d:'٣×١٠',m:'الصدر والكتفان وخلف الذراع',s:['ضع يديك على الأرض أوسع قليلاً من كتفيك.','ثبّت الجسم في خط مستقيم من الرأس إلى الكعبين.','انزل حتى يقترب صدرك من الأرض.','ادفع الأرض للعودة دون أن ينزل الورك.'],x:'هبوط الورك أو رفعه إلى الأعلى.',t:'إن كان صعباً فاجعل ركبتيك على الأرض.'},
+{n:'بلانك (Plank)',d:'٣×٣٠ ثانية',m:'البطن والظهر والكتفان',s:['استند على ساعديك مع المرفقين تحت الكتفين.','ارفع جسمك واجعله خطاً مستقيماً من الرأس إلى الكعبين.','شدّ البطن والأرداف وتنفس بانتظام.','ثبّت المدة المطلوبة ثم ارتح.'],x:'رفع الورك عالياً أو تقوس أسفل الظهر.',t:'انظر إلى الأرض لتبقى رقبتك على استقامة الظهر.'},
+{n:'طعنات (Lunges)',d:'٣×١٠ لكل رجل',m:'الفخذان والأرداف والتوازن',s:['قف مستقيماً ثم اخطُ خطوة واسعة للأمام.','انزل حتى تنثني الركبتان بزاوية قريبة من ٩٠ درجة.','اجعل الركبة الخلفية قريبة من الأرض دون أن تلمسها.','ادفع بالقدم الأمامية للعودة، ثم بدّل الرجل.'],x:'تجاوز الركبة الأمامية لأصابع القدم أو الميلان للأمام.',t:'ضع يديك على خصرك لتحافظ على التوازن.'},
+{n:'سكوات بالقفز',d:'٣×١٠',m:'الفخذان والأرداف وقوة الدفع',s:['انزل في وضع سكوات عادي.','اصعد بقوة واقفز عمودياً إلى الأعلى.','اهبط بنعومة على مشط القدم ثم أنزل الركبتين فوراً إلى سكوات جديد.'],x:'الهبوط بركبتين مستقيمتين أو بصوت عالٍ.',t:'إن شعرت بألم في الركبة فارجع إلى السكوات العادي.'},
+{n:'ضغط عريض',d:'٣×٨',m:'الصدر أكثر من الذراعين',s:['ضع يديك على الأرض أوسع بوضوح من كتفيك.','حافظ على الجسم مستقيماً وانزل ببطء.','ادفع للأعلى حتى يمتد الذراعان تقريباً.'],x:'فتح المرفقين بزاوية قصوى على الجانبين.',t:'ابدأ على الركبتين إن لم تقدر على ٨ مرات.'},
+{n:'جسر الأرداف',d:'٣×١٥',m:'الأرداف وأسفل الظهر',s:['استلقِ على ظهرك وثنِ ركبتيك والقدمان مسطحتان على الأرض.','ارفع الورك حتى يصبح الجسم خطاً مستقيماً من الكتفين إلى الركبتين.','اضغط الأرداف ثانيتين في الأعلى.','انزل ببطء.'],x:'تقويس أسفل الظهر بدل رفع الورك.',t:'اجعل الدفع من الكعبين.'},
+{n:'بلانك جانبي',d:'٣×٢٠ ثانية لكل جهة',m:'جانبا البطن والورك',s:['استلقِ على جنبك واستند على ساعد واحد تحت الكتف.','ارفع الورك حتى يكون الجسم خطاً مستقيماً.','ثبّت ٢٠ ثانية ثم بدّل الجهة.'],x:'ترك الورك ينزل نحو الأرض.',t:'اجعل القدمين فوق بعضهما أو إحداهما أمام الأخرى للتوازن.'},
+{n:'رفع الأرجل',d:'٣×١٢',m:'أسفل البطن',s:['استلقِ على ظهرك ويداك تحت الأرداف.','ارفع رجليك مستقيمتين حتى ٩٠ درجة.','انزل ببطء دون أن تلمس الأرض.'],x:'ارتفاع أسفل الظهر عن الأرض.',t:'ثنِ الركبتين قليلاً إن شعرت بشدّ في الظهر.'}
+];
+var CAR=[
+{n:'حبل القفز',d:'١٥ دقيقة',m:'القلب والساقان والتنسيق',s:['أمسك الحبل بمرونة والمرفقان قريبان من جسمك.','حرّك الحبل بالمعصمين لا بالذراعين كلها.','اقفز قفزات صغيرة على مشط القدم.','إن لم يتوفر حبل فاقفز في المكان كأنه موجود.'],x:'القفز عالياً جداً أو الهبوط على الكعبين.',t:'ابدأ ٣٠ ثانية قفز و٣٠ ثانية راحة.'},
+{n:'المشي السريع',d:'٢٠ دقيقة',m:'القلب والرئتان والساقان',s:['ابدأ بخطوات متوسطة لدقيقتين.','زد السرعة حتى تتنفس بقوة لكن تستطيع الكلام.','حرّك ذراعيك وامش بصدر مرفوع.'],x:'الانحناء للأمام أو المشي بخطوات قصيرة جداً.',t:'يومك الخفيف مناسب للتعافي.'}
+];
+var STRETCH=[
+{n:'إطالة الرقبة',d:'٢٠ ثانية لكل جهة',m:'الرقبة',s:['أمِل رأسك نحو كتفك الأيمن بهدوء.','ضع يدك على الرأس بخفة دون سحب.','ثبّت ثم بدّل الجهة.'],x:'رفع الكتف بدل إمالة الرأس.',t:''},
+{n:'إطالة الكتفين والصدر',d:'٣٠ ثانية',m:'الكتفان والصدر',s:['اشبك يديك خلف ظهرك.','مدّ الذراعين للخلف وارفعهما قليلاً.','افتح الصدر وتنفس بعمق.'],x:'تقويس أسفل الظهر.',t:''},
+{n:'وضعية الطفل',d:'٣٠ ثانية',m:'أسفل الظهر والوركان',s:['اجلس على كعبيك على الأرض.','مدّ ذراعيك للأمام وأنزل صدرك نحو الأرض.','أرخِ الظهر وتنفس ببطء.'],x:'الشدّ بقوة بدل الاسترخاء.',t:''},
+{n:'إطالة الفخذ الأمامي',d:'٢٠ ثانية لكل رجل',m:'مقدمة الفخذ',s:['قف وأمسك قدمك اليمنى من الخلف.','قرّب كعبك نحو الأرداف مع بقاء الركبتين متجاورتين.','ثبّت ثم بدّل الرجل.'],x:'إمالة الجذع للأمام.',t:'استند على جدار إن اختل توازنك.'},
+{n:'إطالة الفخذ الخلفي',d:'٢٠ ثانية لكل رجل',m:'خلف الفخذ',s:['اجلس ومدّ رجلاً مستقيمة وثنِ الأخرى.','انحنِ للأمام من الورك نحو أصابع القدم.','ثبّت دون ارتداد ثم بدّل.'],x:'تقويس الظهر بدل الانحناء من الورك.',t:''},
+{n:'إطالة الربلة',d:'٢٠ ثانية لكل رجل',m:'ربلة الساق',s:['قف أمام جدار وضع يديك عليه.','ضع رجلاً خلفك والكعب على الأرض.','ادفع الورك للأمام حتى تشعر بالشدّ.'],x:'رفع الكعب الخلفي عن الأرض.',t:''}
+];
+var PLAN=[
+['الأحد','سكوات، ضغط، بلانك، طعنات'],
+['الاثنين','حبل القفز، بلانك جانبي، رفع الأرجل'],
+['الثلاثاء','سكوات بالقفز، ضغط عريض، جسر الأرداف، بلانك'],
+['الأربعاء','مشي سريع ٢٠ دقيقة وإطالات'],
+['الخميس','مثل الأحد مع جولة إضافية'],
+['الجمعة','نشاط ممتع: مشي أو دراجة أو كرة قدم'],
+['السبت','راحة أو إطالات خفيفة']];
+function exCard(e){return '<details class="ex"><summary><span>'+X(e.n)+'</span><small>'+X(e.d)+'</small></summary><div class="exb"><p><b>العضلات:</b> '+X(e.m)+'</p><ol>'+e.s.map(function(t){return '<li>'+X(t)+'</li>'}).join('')+'</ol><p class="bad"><b>خطأ شائع:</b> '+X(e.x)+'</p>'+(e.t?'<p><b>نصيحة:</b> '+X(e.t)+'</p>':'')+'</div></details>'}
+$('exPlan').innerHTML=PLAN.map(function(p){return '<div><b>'+p[0]+'</b><span>'+X(p[1])+'</span></div>'}).join('');
+$('exWarm').innerHTML=WARM.map(exCard).join('');
+$('exStr').innerHTML=STR.map(exCard).join('');
+$('exCar').innerHTML=CAR.map(exCard).join('');
+$('exStr2').innerHTML=STRETCH.map(exCard).join('');
+
+var views={today:$('v-today'),ex:$('v-ex'),books:$('v-books')};
+function show(v){for(var k in views){views[k].hidden=(k!==v)}var bs=document.querySelectorAll('#tabs button');for(var i=0;i<bs.length;i++){bs[i].setAttribute('aria-selected',bs[i].dataset.v===v?'true':'false')}if(v==='books'){renderBooks()}}
+$('tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(b)show(b.dataset.v)});
+
+/* settings */
+$('gModel').value=lsGet('gm','gemini-2.5-flash');
+if(lsGet('gk','')){$('gKey').placeholder='المفتاح محفوظ. اكتب مفتاحاً جديداً لتغييره'}else{$('setDet').open=true}
+$('gSave').onclick=function(){
+  var k=$('gKey').value.trim(),m=$('gModel').value.trim()||'gemini-2.5-flash';
+  if(k){lsSet('gk',k);$('gKey').value='';$('gKey').placeholder='المفتاح محفوظ. اكتب مفتاحاً جديداً لتغييره'}
+  lsSet('gm',m);
+  var ok=!!lsGet('gk','');
+  var g=$('gMsg');g.className='msg '+(ok?'ok':'bad');g.textContent=ok?'تم حفظ الإعدادات.':'أدخل مفتاح Gemini أولاً.'};
+
+/* storage */
+var dbP=null;
+function db(){if(!dbP){dbP=new Promise(function(res,rej){var r=indexedDB.open('mawaqit-books',1);r.onupgradeneeded=function(){var d=r.result;d.createObjectStore('meta',{keyPath:'id'});d.createObjectStore('files')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}return dbP}
+function tx(store,mode,fn){return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction(store,mode),rq=fn(t.objectStore(store));t.oncomplete=function(){res(rq&&rq.result)};t.onerror=function(){rej(t.error)};t.onabort=function(){rej(t.error)}})})}
+
+/* pdf.js */
+var pdfP=null;
+function loadPdf(){
+  if(window.pdfjsLib&&window.pdfjsLib.GlobalWorkerOptions.workerSrc)return Promise.resolve(window.pdfjsLib);
+  if(pdfP)return pdfP;
+  var base='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  pdfP=new Promise(function(res,rej){
+    var s=document.createElement('script');s.src=base+'pdf.min.js';
+    s.onload=function(){fetch(base+'pdf.worker.min.js').then(function(r){return r.text()}).then(function(t){pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([t],{type:'text/javascript'}));res(pdfjsLib)}).catch(rej)};
+    s.onerror=function(){rej(new Error('pdfjs'))};
+    document.head.appendChild(s)});
+  pdfP.catch(function(){pdfP=null});
+  return pdfP}
+
+/* books */
+var cur=null,lastText='';
+function setMsg(id,t,c){var e=$(id);e.className='msg'+(c?' '+c:'');e.textContent=t}
+function kindOf(f){if(/\.pdf$/i.test(f.name)||f.type==='application/pdf')return 'pdf';if(/^image\//.test(f.type))return 'img';return 'txt'}
+function fmtSize(b){return b>1048576?AR((b/1048576).toFixed(1))+' ميغابايت':AR(Math.max(1,Math.round(b/1024)))+' كيلوبايت'}
+$('bkAdd').onclick=async function(){
+  var f=$('bkFile').files[0];
+  if(!f){setMsg('bkMsg','اختر ملفاً أولاً.','bad');return}
+  var btn=this;btn.textContent='جارٍ الحفظ…';
+  try{
+    var kind=kindOf(f),pages=null;
+    if(kind==='img'){pages=1}
+    if(kind==='pdf'){try{var lib=await loadPdf();var doc=await lib.getDocument({data:await f.arrayBuffer()}).promise;pages=doc.numPages}catch(e){pages=null}}
+    var id='b'+Date.now();
+    await tx('files','readwrite',function(s){return s.put(f,id)});
+    await tx('meta','readwrite',function(s){return s.put({id:id,name:f.name.replace(/\.[^.]+$/,''),subject:$('bkSub').value,kind:kind,size:f.size,pages:pages,date:Date.now(),sums:[]})});
+    $('bkFile').value='';
+    setMsg('bkMsg','تم حفظ الكتاب في التطبيق.','ok');
+    renderBooks();
+  }catch(e){setMsg('bkMsg','تعذر حفظ الملف. تأكد من مساحة التخزين في هاتفك.','bad')}
+  btn.textContent='حفظ الكتاب في التطبيق'};
+async function allBooks(){try{var a=await tx('meta','readonly',function(s){return s.getAll()});return (a||[]).sort(function(x,y){return y.date-x.date})}catch(e){return []}}
+async function renderBooks(){
+  var a=await allBooks(),box=$('bkList');
+  if(!a.length){box.innerHTML='<p class="msg">لا توجد كتب بعد. أضف أول كتاب من الأعلى.</p>';return}
+  box.innerHTML=a.map(function(b){return '<div class="bk" data-id="'+b.id+'"><div class="nm">'+X(b.name)+'</div><div class="mt">'+X(b.subject)+' · '+(b.pages?AR(b.pages)+' صفحة · ':'')+fmtSize(b.size)+' · '+AR(b.sums.length)+' ملخص محفوظ</div><div class="acts"><button class="btn sm pri" data-a="open" type="button">تلخيص</button><button class="btn sm dng" data-a="del" type="button">حذف</button></div></div>'}).join('')}
+$('bkList').addEventListener('click',async function(e){
+  var btn=e.target.closest('button');if(!btn)return;
+  var id=btn.closest('.bk').dataset.id,a=btn.dataset.a;
+  if(a==='open'){openPanel(id)}
+  if(a==='del'){
+    if(btn.dataset.sure){await tx('meta','readwrite',function(s){return s.delete(id)});await tx('files','readwrite',function(s){return s.delete(id)});if(cur&&cur.id===id){cur=null;$('sumPanel').hidden=true}renderBooks()}
+    else{btn.dataset.sure='1';btn.textContent='تأكيد الحذف';setTimeout(function(){if(btn.isConnected){btn.dataset.sure='';btn.textContent='حذف'}},3500)}}});
+async function openPanel(id){
+  var a=await allBooks();cur=a.filter(function(b){return b.id===id})[0];if(!cur)return;
+  $('sumPanel').hidden=false;$('spTitle').textContent='تلخيص: '+cur.name;
+  $('rangeRow').hidden=(cur.kind!=='pdf');
+  if(cur.pages){$('pgFrom').max=cur.pages;$('pgTo').max=cur.pages;$('pgTo').value=Math.min(cur.pages,5)}
+  $('pgFrom').value=1;
+  $('sumOut').hidden=true;$('sumActs').hidden=true;setMsg('sumMsg','');
+  renderSaved();
+  $('sumPanel').scrollIntoView({behavior:'smooth',block:'start'})}
+$('sumClose').onclick=function(){$('sumPanel').hidden=true;cur=null};
+var LVN={short:'مختصر',mid:'متوسط',long:'مفصل'};
+function renderSaved(){
+  if(!cur||!cur.sums.length){$('sumSaved').innerHTML='';return}
+  $('sumSaved').innerHTML='<h3 style="margin:8px 0 0;font-size:14px">الملخصات المحفوظة</h3>'+cur.sums.map(function(s){return '<div class="sl" data-s="'+s.id+'"><button class="lk" data-a="view" type="button">'+(s.from?'ص '+AR(s.from)+' – '+AR(s.to)+' · ':'')+LVN[s.level]+' · '+new Date(s.date).toLocaleDateString('ar-IQ',{day:'numeric',month:'short'})+'</button><button class="btn sm dng" data-a="rm" type="button">حذف</button></div>'}).join('')}
+$('sumSaved').addEventListener('click',async function(e){
+  var btn=e.target.closest('button');if(!btn||!cur)return;
+  var sid=btn.closest('.sl').dataset.s,s=cur.sums.filter(function(x){return x.id===sid})[0];
+  if(btn.dataset.a==='view'&&s){showResult(s.text)}
+  if(btn.dataset.a==='rm'){
+    if(btn.dataset.sure){cur.sums=cur.sums.filter(function(x){return x.id!==sid});await tx('meta','readwrite',function(st){return st.put(cur)});renderSaved();renderBooks()}
+    else{btn.dataset.sure='1';btn.textContent='تأكيد';setTimeout(function(){if(btn.isConnected){btn.dataset.sure='';btn.textContent='حذف'}},3500)}}});
+function md(t){
+  var out=[],inUl=false;
+  X(t).split('\n').forEach(function(l){
+    var m=l.match(/^\s*(#{1,4})\s+(.*)$/),li=l.match(/^\s*[-*•]\s+(.*)$/);
+    function inl(s){return s.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
+    if(li){if(!inUl){out.push('<ul>');inUl=true}out.push('<li>'+inl(li[1])+'</li>');return}
+    if(inUl){out.push('</ul>');inUl=false}
+    if(m){out.push('<h3>'+inl(m[2])+'</h3>')}else if(l.trim()){out.push('<p>'+inl(l)+'</p>')}});
+  if(inUl)out.push('</ul>');return out.join('')}
+function showResult(t){lastText=t;$('sumOut').innerHTML=md(t);$('sumOut').hidden=false;$('sumActs').hidden=false}
+$('sumCopy').onclick=function(){
+  var b=this;function done(){b.textContent='تم النسخ';setTimeout(function(){b.textContent='نسخ الملخص'},1800)}
+  try{navigator.clipboard.writeText(lastText).then(done,function(){selectOut()})}catch(e){selectOut()}};
+function selectOut(){try{var r=document.createRange();r.selectNodeContents($('sumOut'));var s=getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}}
+
+/* gemini */
+async function gem(parts){
+  var key=lsGet('gk','');
+  if(!key){var e0=new Error('nokey');e0.code='nokey';throw e0}
+  var model=lsGet('gm','gemini-2.5-flash'),r;
+  try{
+    r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts:parts}],generationConfig:{temperature:0.3}})});
+  }catch(e){var e1=new Error('net');e1.code='net';throw e1}
+  if(!r.ok){var e2=new Error('http');e2.code=r.status;throw e2}
+  var j=await r.json(),c=j.candidates&&j.candidates[0],t=c&&c.content&&c.content.parts?c.content.parts.map(function(p){return p.text||''}).join(''):'';
+  if(!t){var e3=new Error('empty');e3.code='empty';throw e3}
+  return t}
+function errText(e){
+  var c=e&&e.code;
+  if(c==='nokey')return 'أدخل مفتاح Gemini من الإعدادات أولاً.';
+  if(c==='net')return 'تعذر الاتصال. تأكد من الإنترنت. وهذه الميزة تعمل داخل تطبيق APK فقط، وليس داخل معاينة الويب.';
+  if(c===400||c===403)return 'المفتاح غير صحيح أو غير مفعّل. تحقق منه في الإعدادات.';
+  if(c===404)return 'اسم النموذج غير صحيح. غيّره من الإعدادات.';
+  if(c===429)return 'تجاوزت حد الاستخدام المجاني. انتظر قليلاً ثم أعد المحاولة.';
+  if(c==='empty')return 'لم يرجع النموذج نصاً. جرّب صفحات أقل.';
+  if(c==='pdf')return 'تعذر تحميل قارئ PDF. تأكد من الإنترنت وأعد المحاولة.';
+  return 'حدث خطأ غير متوقع. أعد المحاولة.'}
+function prompt_(b,lvl,range){
+  var L={short:'اجعل الملخص مختصراً في نحو ١٢ سطراً.',mid:'اجعل الملخص متوسطاً بعناوين ونقاط واضحة.',long:'اجعل الملخص مفصلاً يشمل كل الأفكار والتعريفات والقوانين والأمثلة المهمة.'}[lvl];
+  return 'أنت مدرّس خبير. لخّص '+range+' من كتاب «'+b.name+'» في مادة '+b.subject+' لطالب في المرحلة الثانوية. اكتب بالعربية الواضحة. '+L+' ابدأ بعنوان، ثم النقاط الرئيسية، ثم التعريفات والقوانين المهمة إن وجدت، واختم بثلاثة أسئلة مراجعة قصيرة. لا تضف معلومات غير موجودة في المحتوى. اكتب القوانين والمعادلات بنص عادي.'}
+async function pageImg(doc,n){
+  var pg=await doc.getPage(n),v1=pg.getViewport({scale:1}),sc=Math.min(2,1100/v1.width),v=pg.getViewport({scale:sc}),c=document.createElement('canvas');
+  c.width=Math.round(v.width);c.height=Math.round(v.height);
+  await pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;
+  return c.toDataURL('image/jpeg',0.72).split(',')[1]}
+function blobB64(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(String(r.result).split(',')[1])};r.onerror=rej;r.readAsDataURL(f)})}
+async function combine(partials,b,lvl){
+  if(partials.length===1)return partials[0];
+  setMsg('sumMsg','جارٍ دمج الأجزاء…');
+  return gem([{text:'هذه ملخصات جزئية متتالية من كتاب «'+b.name+'». ادمجها في ملخص واحد منظم بالعربية، بعناوين ونقاط، دون تكرار، وبمستوى '+LVN[lvl]+'، واختم بثلاثة أسئلة مراجعة.\n\n'+partials.join('\n\n---\n\n')}])}
+$('sumGo').onclick=async function(){
+  if(!cur)return;
+  var btn=this,b=cur,lvl=$('sumLvl').value,from=null,to=null,partials=[];
+  btn.disabled=true;$('sumOut').hidden=true;$('sumActs').hidden=true;
+  try{
+    var file=await tx('files','readonly',function(s){return s.get(b.id)});
+    if(!file){setMsg('sumMsg','لم أجد ملف الكتاب. أعد رفعه.','bad');btn.disabled=false;return}
+    if(!lsGet('gk','')){setMsg('sumMsg',errText({code:'nokey'}),'bad');$('setDet').open=true;btn.disabled=false;return}
+    if(b.kind==='pdf'){
+      var lib;try{lib=await loadPdf()}catch(e){e.code='pdf';throw e}
+      var doc=await lib.getDocument({data:await file.arrayBuffer()}).promise,N=doc.numPages;
+      from=Math.min(Math.max(parseInt($('pgFrom').value,10)||1,1),N);
+      to=Math.min(Math.max(parseInt($('pgTo').value,10)||from,from),N);
+      if(to-from+1>60){to=from+59}
+      $('pgFrom').value=from;$('pgTo').value=to;
+      var CH=8;
+      for(var p=from;p<=to;p+=CH){
+        var e2=Math.min(p+CH-1,to);
+        setMsg('sumMsg','جارٍ قراءة الصفحات '+AR(p)+' إلى '+AR(e2)+' من '+AR(to)+'…');
+        var parts=[{text:prompt_(b,lvl,'الصفحات من '+p+' إلى '+e2)}];
+        for(var q=p;q<=e2;q++){parts.push({inline_data:{mime_type:'image/jpeg',data:await pageImg(doc,q)}})}
+        partials.push(await gem(parts))}
+    }else if(b.kind==='img'){
+      setMsg('sumMsg','جارٍ تحليل الصورة…');
+      partials.push(await gem([{text:prompt_(b,lvl,'الصفحة المرفقة')},{inline_data:{mime_type:file.type||'image/jpeg',data:await blobB64(file)}}]))
+    }else{
+      var txt=await file.text(),CHR=14000,n=Math.ceil(txt.length/CHR)||1;
+      for(var i=0;i<n;i++){
+        setMsg('sumMsg','جارٍ تلخيص الجزء '+AR(i+1)+' من '+AR(n)+'…');
+        partials.push(await gem([{text:prompt_(b,lvl,'النص التالي')+'\n\n'+txt.slice(i*CHR,(i+1)*CHR)}]))}}
+    var final=await combine(partials,b,lvl);
+    showResult(final);setMsg('sumMsg','تم التلخيص وحُفظ في التطبيق.','ok');
+    b.sums.unshift({id:'s'+Date.now(),from:from,to:to,level:lvl,date:Date.now(),text:final});
+    b.sums=b.sums.slice(0,20);
+    await tx('meta','readwrite',function(s){return s.put(b)});
+    cur=b;renderSaved();renderBooks();
+  }catch(e){setMsg('sumMsg',errText(e),'bad')}
+  btn.disabled=false};
+})();
 </script>
 </body></html>
