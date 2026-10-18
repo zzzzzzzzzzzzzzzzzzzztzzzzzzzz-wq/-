@@ -19,6 +19,28 @@ jobs:
           cp index.html www/index.html
       - run: npm install
       - run: npx cap add android
+      - name: Add adhan sounds
+        run: |
+          mkdir -p www/sounds android/app/src/main/res/raw
+          echo "[" > www/sounds/list.json
+          first=1
+          if [ -d sounds ]; then
+            for f in sounds/*; do
+              [ -f "$f" ] || continue
+              b=$(basename "$f")
+              ext=$(echo "${b##*.}" | tr 'A-Z' 'a-z')
+              case "$ext" in mp3|wav|ogg) ;; *) continue ;; esac
+              name=$(echo "${b%.*}" | tr 'A-Z' 'a-z' | sed 's/[^a-z0-9]/_/g')
+              name="s_$name"
+              cp "$f" "www/sounds/$name.$ext"
+              cp "$f" "android/app/src/main/res/raw/$name.$ext"
+              if [ $first -eq 0 ]; then echo "," >> www/sounds/list.json; fi
+              echo "\"$name.$ext\"" >> www/sounds/list.json
+              first=0
+            done
+          fi
+          echo "]" >> www/sounds/list.json
+          cat www/sounds/list.json
       - run: |
           M=android/app/src/main/AndroidManifest.xml
           sed -i 's#<application#<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />\n    <uses-permission android:name="android.permission.VIBRATE" />\n    <application#' "$M"
