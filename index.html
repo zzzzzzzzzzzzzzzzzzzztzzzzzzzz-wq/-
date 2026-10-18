@@ -119,6 +119,22 @@ details.ex[open] summary::after{content:"\2212"}
 .sl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
 .sl:first-child{border-top:0}
 .sl button.lk{border:0;background:transparent;color:var(--accent);padding:2px 0;text-align:start;font-size:13px}
+
+.fig{display:flex;justify-content:center;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px}
+.fig svg{width:100%;max-width:340px;height:auto;display:block}
+.fig.one svg{max-width:170px}
+.fl{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.far{opacity:.4}
+.fh{fill:var(--bg);stroke:var(--ink);stroke-width:2.6}
+.fg{stroke:var(--line);stroke-width:1.5;fill:none}
+.fa{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tmr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.tv{font-family:var(--f-disp);font-size:28px;font-weight:600;min-width:84px;color:var(--accent);line-height:1.2}
+.tmr.done .tv{color:var(--k-ex)}
+.tin{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)}
+.tin input{font:inherit;font-size:14px;width:68px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 6px}
+.yt{display:inline-block;align-self:flex-start;color:var(--accent);font-weight:500;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.k-read{--k:var(--accent)}
 </style>
 
 <main class="app">
@@ -146,6 +162,13 @@ details.ex[open] summary::after{content:"\2212"}
     <div class="pr" id="prayers"></div>
   </section>
 
+  <section class="card" id="sndCard" hidden>
+    <h3>صوت الأذان</h3>
+    <label class="fld" for="sndFajr">أذان الفجر<select id="sndFajr"></select></label>
+    <label class="fld" for="sndOther">أذان باقي الصلوات<select id="sndOther"></select></label>
+    <div class="acts"><button class="btn sm" id="sndPrevF" type="button">تجربة صوت الفجر</button><button class="btn sm" id="sndPrevO" type="button">تجربة الصوت الثاني</button></div>
+    <p class="msg" id="sndMsg"></p>
+  </section>
   <section class="sec">
     <h2><span id="tlTitle">برنامج اليوم</span></h2>
     <ol class="tl" id="timeline"></ol>
@@ -204,7 +227,7 @@ details.ex[open] summary::after{content:"\2212"}
 
 <script>
 var WEEK=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-var KIND={study:'دراسة',ex:'رياضة',prayer:'صلاة',school:'مدرسة',rest:'راحة',sleep:'نوم'};
+var KIND={study:'دراسة',ex:'رياضة',prayer:'صلاة',school:'مدرسة',rest:'راحة',sleep:'نوم',read:'قراءة'};
 var A=[
 ['06:30','استيقاظ وماء فاتر وإفطار خفيف','تنشيط الدورة الدموية','rest',1],
 ['07:30','التوجه للمدرسة','وصول هادئ ورصين','school',1],
@@ -229,6 +252,31 @@ var B=[
 ['18:15','دراسة مسائية وتجهيز دروس الغد','إنجاز كافة التكاليف','study',1],
 ['21:00','خط أحمر: إغلاق المواد والعشاء','ترك الدماغ يرتاح','sleep',1],
 ['22:30','النوم المنتظم والعميق','استعادة القوة البدنية','sleep',1]];
+var C=[
+['07:30','استيقاظ وإفطار هادئ','بداية يوم مريح','rest',1],
+['08:30','قراءة حرة: كتاب أو رواية','٤٥ دقيقة بتركيز كامل','read',1],
+['09:30','استراحة وسناك','ماء وفاكهة','rest',0],
+['10:00','نشاط ممتع: مشي أو دراجة أو كرة','٣٠ إلى ٤٥ دقيقة','ex',1],
+['11:00','الاغتسال والتجهز لصلاة الجمعة','لباس نظيف وهدوء','rest',1],
+['13:00','الغداء والراحة','استعادة النشاط','rest',0],
+['15:00','قراءة ومراجعة: مادة تحتاج تقوية','ساعة واحدة','read',1],
+['16:30','استراحة وصلة رحم','اتصال بالأهل','rest',0],
+['17:30','قراءة وتلخيص من تبويب الكتب','٤٥ دقيقة','read',1],
+['18:30','مراجعة الأسبوع وتحضير جدول الأحد','دفتر الأخطاء','study',1],
+['21:00','خط أحمر: إغلاق الكتب والعشاء','إبعاد الهاتف','sleep',1],
+['22:30','النوم العميق','استعادة القوة','sleep',1]];
+var D=[
+['07:30','استيقاظ وإفطار','بداية هادئة','rest',1],
+['08:30','قراءة كتاب خارجي','٦٠ دقيقة','read',1],
+['09:45','استراحة وسناك','ماء وفاكهة','rest',0],
+['10:00','مراجعة المادة الأضعف','حل أسئلة وتدريبات','study',1],
+['12:30','الغداء والراحة','استعادة النشاط','rest',0],
+['14:30','قراءة وتلخيص من تبويب الكتب','ساعة واحدة','read',1],
+['16:00','إطالات خفيفة وتمشية','٢٠ دقيقة','ex',1],
+['17:00','قراءة ممتعة أو هواية','بدون ضغط','read',0],
+['18:30','تجهيز الحقيبة والواجبات','تجهيز يوم الأحد','study',1],
+['21:00','خط أحمر: إغلاق الكتب والعشاء','إبعاد الهاتف','sleep',1],
+['22:30','النوم العميق','استعادة القوة','sleep',1]];
 var WORK=[
 'إحماء ٥ دقائق، ثم: سكوات ٣×١٥، ضغط ٣×١٠، بلانك ٣×٣٠ ثانية، طعنات ٣×١٠ لكل رجل، ثم إطالة ٥ دقائق.',
 'إحماء ٥ دقائق، ثم: حبل قفز ١٥ دقيقة، بلانك جانبي ٣×٢٠ ثانية لكل جهة، رفع أرجل ٣×١٢، ثم إطالة ٥ دقائق.',
@@ -268,10 +316,10 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;
 function weekDate(idx){var n=new Date(),d=new Date(n.getFullYear(),n.getMonth(),n.getDate()-n.getDay()+idx);return d}
 
 function dayItems(idx,date){
-  var base=(idx<2?A:idx<5?B:[]).map(function(r){return{min:toMin(r[0]),title:r[1],note:r[2],kind:r[3],notify:!!r[4],detail:r[3]==='ex'?WORK[idx]:''}});
+  var base=(idx<2?A:idx<5?B:idx===5?C:D).map(function(r){return{min:toMin(r[0]),title:r[1],note:r[2],kind:r[3],notify:!!r[4],detail:r[3]==='ex'?(WORK[idx]||REST[idx-5]||''):''}});
   var pt=prayerTimes(date||weekDate(idx),state.method);
   ['fajr','sunrise','dhuhr','asr','maghrib','isha'].forEach(function(k){
-    base.push({min:pt[k],title:k==='sunrise'?'الشروق':'صلاة '+PN[k],note:'',kind:'prayer',notify:k!=='sunrise',prayer:k,sunrise:k==='sunrise'})});
+    base.push({min:pt[k],title:k==='sunrise'?'الشروق':(k==='dhuhr'&&idx===5?'صلاة الجمعة':'صلاة '+PN[k]),note:'',kind:'prayer',notify:k!=='sunrise',prayer:k,sunrise:k==='sunrise'})});
   base.sort(function(a,b){return a.min-b.min});return base}
 
 function renderDays(){
@@ -291,7 +339,7 @@ function renderTimeline(){
   var items=dayItems(state.sel),isT=state.sel===new Date().getDay(),n=new Date(),nm=n.getHours()*60+n.getMinutes();
   var curIdx=-1;if(isT){for(var i=0;i<items.length;i++){if(items[i].min<=nm&&!items[i].sunrise&&items[i].kind!=='prayer')curIdx=i}}
   var h='';
-  if(state.sel>=5){h+='<li><span class="tm">اليوم</span><div><div class="ti">'+esc(REST[state.sel-5])+'</div></div></li>'}
+  
   items.forEach(function(it,i){
     var cls=isT?(i===curIdx?'cur':(it.min<nm?'past':'')):'';
     h+='<li class="'+cls+'"><span class="tm">'+T(it.min)+'</span><div><div class="ti">'+esc(it.title)+'<span class="chip k-'+it.kind+'">'+KIND[it.kind]+'</span></div>'+(it.note?'<div class="no">'+esc(it.note)+'</div>':'')+(it.detail?'<div class="dt">'+esc(it.detail)+'</div>':'')+'</div></li>'});
@@ -342,6 +390,34 @@ setInterval(function(){renderNow();checkAlerts();var n=new Date();if(n.getSecond
 var NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
 function LN(){return window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications}
 function say(t){document.getElementById('bannerText').textContent=t;document.getElementById('banner').hidden=false}
+var SNDLIST=[],SND={f:'default',o:'default'},prevA=null;
+function lg(k,d){try{var v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
+function lsx(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+async function loadSounds(){
+  try{var r=await fetch('sounds/list.json');var a=await r.json();SNDLIST=Array.isArray(a)?a:[]}catch(e){SNDLIST=[]}
+  SND.f=lg('snd_f','default');SND.o=lg('snd_o','default');
+  if(SND.f!=='default'&&SNDLIST.indexOf(SND.f)<0)SND.f='default';
+  if(SND.o!=='default'&&SNDLIST.indexOf(SND.o)<0)SND.o='default'}
+function chName(f){return 'adhan_'+f.replace(/\.[^.]+$/,'')}
+function dispSnd(f){return f.replace(/^s_/,'').replace(/\.[^.]+$/,'').replace(/_/g,' ')}
+function chFor(it){if(it.kind==='prayer'&&!it.sunrise){var s=it.prayer==='fajr'?SND.f:SND.o;if(s&&s!=='default')return chName(s)}return 'mawaqit'}
+async function initSoundCard(){
+  await loadSounds();
+  var card=document.getElementById('sndCard'),F=document.getElementById('sndFajr'),O=document.getElementById('sndOther'),M=document.getElementById('sndMsg');
+  card.hidden=false;
+  function fill(sel,cur){var h='<option value="default">صوت الإشعار الافتراضي</option>';SNDLIST.forEach(function(f){h+='<option value="'+f+'">'+dispSnd(f)+'</option>'});sel.innerHTML=h;sel.value=cur}
+  fill(F,SND.f);fill(O,SND.o);
+  M.textContent=SNDLIST.length?'اختر الصوت ثم اضغط تجربة. يُحدَّث الجدول تلقائياً عند التغيير.':'لم تُضف أصوات أذان بعد. ضع ملفات mp3 داخل مجلد sounds في GitHub كما في ملف README، ثم ابنِ التطبيق من جديد.';
+  F.onchange=function(){SND.f=F.value;lsx('snd_f',SND.f);scheduleNative(false)};
+  O.onchange=function(){SND.o=O.value;lsx('snd_o',SND.o);scheduleNative(false)};
+  function prev(sel){
+    if(prevA){prevA.pause();prevA=null;M.textContent='';return}
+    if(sel.value==='default'){M.textContent='الصوت الافتراضي يُسمع عند وصول الإشعار.';return}
+    prevA=new Audio('sounds/'+sel.value);prevA.onended=function(){prevA=null};
+    prevA.play().catch(function(){M.textContent='تعذر تشغيل الصوت. تأكد أن الملف سليم.';prevA=null})}
+  document.getElementById('sndPrevF').onclick=function(){prev(F)};
+  document.getElementById('sndPrevO').onclick=function(){prev(O)};
+}
 async function scheduleNative(ask){
   var ln=LN();if(!ln){say('ميزة الإشعارات غير متاحة في هذا الإصدار.');return}
   try{
@@ -350,6 +426,8 @@ async function scheduleNative(ask){
     if(p.display!=='granted'){say('الإشعارات غير مسموحة. فعّلها من إعدادات التطبيق في الهاتف.');return}
     try{var ex=await ln.checkExactNotificationSetting();if(ex.exact_alarm==='denied'&&ask){await ln.changeExactNotificationSetting()}}catch(e){}
     try{await ln.createChannel({id:'mawaqit',name:'مواقيت الدراسة',importance:5,visibility:1,vibration:true})}catch(e){}
+    await loadSounds();
+    for(var si=0;si<SNDLIST.length;si++){try{await ln.createChannel({id:chName(SNDLIST[si]),name:'أذان: '+dispSnd(SNDLIST[si]),importance:5,visibility:1,vibration:true,sound:SNDLIST[si]})}catch(e){}}
     var pend=await ln.getPending();
     if(pend.notifications&&pend.notifications.length){await ln.cancel({notifications:pend.notifications.map(function(n){return{id:n.id}})})}
     var now=new Date(),list=[],id=1;
@@ -359,12 +437,13 @@ async function scheduleNative(ask){
         if(!it.notify)return;
         var at=new Date(d.getFullYear(),d.getMonth(),d.getDate(),Math.floor(it.min/60),it.min%60,0);
         if(at<=now)return;
-        list.push({id:id++,title:it.kind==='prayer'?'حان وقت '+it.title:it.title,body:it.note||fmt(it.min),schedule:{at:at,allowWhileIdle:true},channelId:'mawaqit'})})}
+        list.push({id:id++,title:it.kind==='prayer'?'حان وقت '+it.title:it.title,body:it.note||fmt(it.min),schedule:{at:at,allowWhileIdle:true},channelId:chFor(it)})})}
     if(list.length){await ln.schedule({notifications:list})}
     say('تمت جدولة '+list.length+' تنبيهاً للأيام السبعة القادمة.')
   }catch(e){say('تعذر ضبط التنبيهات. جرّب الضغط على الزر مرة أخرى.')}
 }
 if(NATIVE){
+  initSoundCard();
   var ab=document.getElementById('alertBtn');ab.textContent='تحديث التنبيهات';ab.setAttribute('aria-pressed','true');
   ab.onclick=function(){scheduleNative(true)};
   document.getElementById('mSunni').addEventListener('click',function(){scheduleNative(false)});
@@ -421,7 +500,96 @@ var PLAN=[
 ['الخميس','مثل الأحد مع جولة إضافية'],
 ['الجمعة','نشاط ممتع: مشي أو دراجة أو كرة قدم'],
 ['السبت','راحة أو إطالات خفيفة']];
-function exCard(e){return '<details class="ex"><summary><span>'+X(e.n)+'</span><small>'+X(e.d)+'</small></summary><div class="exb"><p><b>العضلات:</b> '+X(e.m)+'</p><ol>'+e.s.map(function(t){return '<li>'+X(t)+'</li>'}).join('')+'</ol><p class="bad"><b>خطأ شائع:</b> '+X(e.x)+'</p>'+(e.t?'<p><b>نصيحة:</b> '+X(e.t)+'</p>':'')+'</div></details>'}
+var G=66,TLN=22,UA=11,FA=10,THL=14,SHL=13;
+function rad(d){return d*Math.PI/180}
+function vec(a,l){return [l*Math.cos(rad(a)),l*Math.sin(rad(a))]}
+function joints(o){
+  var ga=o.ga||0,L=o.legs,pel;
+  if(o.p){pel=o.p}else{var t=vec(L[ga][0],THL),s=vec(L[ga][1],SHL);pel=[o.gx-t[0]-s[0],G-t[1]-s[1]]}
+  var tn=vec(o.t,TLN),neck=[pel[0]+tn[0],pel[1]+tn[1]],hv=vec(o.t+(o.hd||0),6.5),head=[neck[0]+hv[0],neck[1]+hv[1]];
+  function limb(a,o1,l1,l2){var u=vec(a[0],l1),v=vec(a[1],l2),k=[o1[0]+u[0],o1[1]+u[1]];return [o1,k,[k[0]+v[0],k[1]+v[1]]]}
+  return {pel:pel,neck:neck,head:head,arms:o.arms.map(function(a){return limb(a,neck,UA,FA)}),legs:L.map(function(a){return limb(a,pel,THL,SHL)})}}
+function pl(l,c){return '<polyline class="'+c+'" points="'+l.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' ')+'"/>'}
+function poseSvg(o,dx){
+  var j=joints(o),s='<g transform="translate('+dx+' 0)"><line class="fg" x1="4" y1="'+(G+2)+'" x2="96" y2="'+(G+2)+'"/>';
+  if(o.wall)s+='<line class="fg" x1="'+o.wall+'" y1="6" x2="'+o.wall+'" y2="'+(G+2)+'" style="stroke-width:3"/>';
+  if(j.arms[1])s+=pl(j.arms[1],'fl far');
+  if(j.legs[1])s+=pl(j.legs[1],'fl far');
+  s+=pl([j.pel,j.neck],'fl');
+  s+=pl(j.legs[0],'fl');
+  s+=pl(j.arms[0],'fl');
+  s+='<circle class="fh" cx="'+j.head[0].toFixed(1)+'" cy="'+j.head[1].toFixed(1)+'" r="5"/></g>';
+  return s}
+function figSvg(f){
+  if(!f)return '';
+  if(f.b){return '<div class="fig"><svg viewBox="0 -10 220 82" role="img" aria-label="وضعية البداية ثم وضعية التمرين">'+poseSvg(f.a,0)+'<path class="fa" d="M102 30 L118 30 M113 25 L118 30 L113 35 M118 42 L102 42 M107 37 L102 42 L107 47"/>'+poseSvg(f.b,120)+'</svg></div>'}
+  return '<div class="fig one"><svg viewBox="0 -10 100 82" role="img" aria-label="وضعية التمرين">'+poseSvg(f.a,0)+'</svg></div>'}
+var S0={gx:50,t:-90,arms:[[90,90],[95,92]],legs:[[90,90],[92,90]]};
+var SQB={gx:50,t:-60,arms:[[0,0],[5,0]],legs:[[15,95],[12,95]]};
+var PUA={p:[47,51],t:-15,arms:[[90,90],[92,90]],legs:[[150,152],[152,152]]};
+var PUB={p:[44,56],t:-8,arms:[[120,20],[125,25]],legs:[[165,170],[166,170]]};
+var LIE={p:[40,62],t:0,arms:[[180,180],[178,180]]};
+var EXTRA={
+'دوران الرقبة والكتفين':{s:30,q:'تمارين الرقبة والكتفين إحماء بالعربي',f:{a:{gx:50,t:-90,hd:55,arms:[[90,92],[95,92]],legs:S0.legs},b:{gx:50,t:-90,hd:-55,arms:[[90,92],[95,92]],legs:S0.legs}}},
+'دوران الذراعين':{s:30,q:'تمرين دوران الذراعين إحماء بالعربي',f:{a:{gx:50,t:-90,arms:[[0,0],[5,0]],legs:S0.legs},b:{gx:50,t:-90,arms:[[-90,-90],[-100,-100]],legs:S0.legs}}},
+'دوران الورك والركبتين':{s:45,q:'تمارين إحماء الورك والركبة بالعربي',f:{a:{gx:50,t:-100,arms:[[100,40],[105,40]],legs:[[100,100],[102,100]]},b:{gx:50,t:-78,arms:[[100,40],[105,40]],legs:[[80,80],[82,80]]}}},
+'المشي أو الجري في المكان':{s:60,q:'إحماء الجري في المكان بالعربي',f:{a:{gx:50,t:-90,arms:[[45,-40],[135,100]],legs:[[90,90],[5,90]]},b:{gx:50,ga:1,t:-90,arms:[[135,100],[45,-40]],legs:[[5,90],[90,90]]}}},
+'القفز المفتوح (Jumping Jacks)':{s:45,q:'شرح تمرين Jumping Jacks بالعربي',f:{a:S0,b:{p:[50,34],t:-90,arms:[[-55,-80],[-125,-100]],legs:[[65,80],[115,100]]}}},
+'سكوات (Squat)':{s:45,q:'شرح تمرين السكوات بالعربي',f:{a:S0,b:SQB}},
+'ضغط (Push-up)':{s:40,q:'شرح تمرين الضغط بالطريقة الصحيحة بالعربي',f:{a:PUA,b:PUB}},
+'بلانك (Plank)':{s:30,q:'شرح تمرين البلانك بالعربي',f:{a:{p:[46,56],t:-8,arms:[[90,5],[92,5]],legs:[[162,166],[163,166]]}}},
+'طعنات (Lunges)':{s:60,q:'شرح تمرين الطعنات Lunges بالعربي',f:{a:S0,b:{gx:62,t:-90,arms:[[90,90],[92,90]],legs:[[10,90],[120,170]]}}},
+'سكوات بالقفز':{s:40,q:'شرح تمرين سكوات بالقفز بالعربي',f:{a:SQB,b:{p:[50,32],t:-90,arms:[[-70,-80],[-75,-80]],legs:[[95,92],[97,92]]}}},
+'ضغط عريض':{s:40,q:'شرح تمرين الضغط العريض بالعربي',f:{a:PUA,b:PUB}},
+'جسر الأرداف':{s:45,q:'شرح تمرين جسر الأرداف بالعربي',f:{a:{p:LIE.p,t:0,arms:LIE.arms,legs:[[-125,80],[-128,80]]},b:{p:[42,50],t:31,arms:LIE.arms,legs:[[170,80],[168,80]]}}},
+'بلانك جانبي':{s:20,q:'شرح تمرين البلانك الجانبي بالعربي',f:{a:{p:[46,60],t:-12,arms:[[90,5],[-90,-90]],legs:[[168,170],[169,170]]}}},
+'رفع الأرجل':{s:40,q:'شرح تمرين رفع الأرجل للبطن بالعربي',f:{a:{p:LIE.p,t:0,arms:LIE.arms,legs:[[180,180],[178,180]]},b:{p:LIE.p,t:0,arms:LIE.arms,legs:[[-90,-90],[-88,-90]]}}},
+'حبل القفز':{s:900,q:'شرح تمرين حبل القفز للمبتدئين بالعربي',f:{a:{gx:50,t:-90,arms:[[50,10],[55,12]],legs:S0.legs},b:{p:[50,35],t:-90,arms:[[50,10],[55,12]],legs:[[100,90],[100,92]]}}},
+'المشي السريع':{s:1200,q:'المشي السريع وطريقته الصحيحة بالعربي',f:{a:{gx:60,t:-85,arms:[[50,30],[130,110]],legs:[[75,90],[112,100]]},b:{gx:60,ga:1,t:-85,arms:[[130,110],[50,30]],legs:[[112,100],[75,90]]}}},
+'إطالة الرقبة':{s:20,q:'إطالة الرقبة بالعربي',f:{a:{gx:50,t:-90,hd:55,arms:[[90,92],[95,92]],legs:S0.legs},b:{gx:50,t:-90,hd:-55,arms:[[90,92],[95,92]],legs:S0.legs}}},
+'إطالة الكتفين والصدر':{s:30,q:'إطالة الكتف والصدر بالعربي',f:{a:{gx:50,t:-90,arms:[[115,115],[118,115]],legs:S0.legs},b:{gx:50,t:-80,arms:[[140,150],[143,150]],legs:S0.legs}}},
+'وضعية الطفل':{s:30,q:'وضعية الطفل يوغا بالعربي',f:{a:{p:[30,52],t:15,arms:[[15,5],[18,5]],legs:[[25,155],[23,155]]}}},
+'إطالة الفخذ الأمامي':{s:20,q:'إطالة الفخذ الأمامي بالعربي',f:{a:{gx:50,t:-90,arms:[[90,90],[120,150]],legs:[[90,90],[95,200]]}}},
+'إطالة الفخذ الخلفي':{s:20,q:'إطالة الفخذ الخلفي بالعربي',f:{a:{p:[30,64],t:-40,arms:[[40,25],[45,25]],legs:[[0,0],[-55,140]]}}},
+'إطالة الربلة':{s:20,q:'إطالة عضلة الساق الربلة بالعربي',f:{a:{gx:70,t:-60,wall:88,arms:[[-5,-5],[0,-5]],legs:[[15,90],[140,140]]}}}
+};
+function fmtT(s){s=Math.max(0,Math.ceil(s));var m=Math.floor(s/60),r=s%60;return (m<10?'0':'')+m+':'+(r<10?'0':'')+r}
+var tmrN=0;
+function exCard(e){
+  var x=EXTRA[e.n]||{},sec=x.s||30,id='tin'+(++tmrN);
+  return '<details class="ex"><summary><span>'+X(e.n)+'</span><small>'+X(e.d)+'</small></summary><div class="exb">'+figSvg(x.f)+
+   '<p><b>العضلات:</b> '+X(e.m)+'</p><ol>'+e.s.map(function(t){return '<li>'+X(t)+'</li>'}).join('')+'</ol><p class="bad"><b>خطأ شائع:</b> '+X(e.x)+'</p>'+(e.t?'<p><b>نصيحة:</b> '+X(e.t)+'</p>':'')+
+   '<div class="tmr"><span class="tv t">'+fmtT(sec)+'</span><label class="tin" for="'+id+'">ثواني <input id="'+id+'" type="number" inputmode="numeric" min="1" max="3600" value="'+sec+'"></label><button class="btn sm pri" data-a="go" type="button">ابدأ</button><button class="btn sm" data-a="rs" type="button">إعادة</button></div>'+
+   '<a class="yt" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(x.q||e.n)+'">شاهد الشرح على يوتيوب</a></div></details>'}
+/* timers */
+var tAc=null,tCur=null;
+function tBeep(f,d,when){try{tAc=tAc||new (window.AudioContext||window.webkitAudioContext)();if(tAc.resume)tAc.resume();var o=tAc.createOscillator(),g=tAc.createGain(),t0=tAc.currentTime+(when||0);o.type='sine';o.frequency.value=f;g.gain.value=0.25;o.connect(g);g.connect(tAc.destination);o.start(t0);o.stop(t0+d)}catch(e){}}
+function tSecs(b){var v=parseInt(b.querySelector('input').value,10);return Math.min(Math.max(v||1,1),3600)}
+function tPaint(b,txt){b.querySelector('.tv').textContent=txt!=null?txt:fmtT(b._left/1000)}
+function tBtn(b,t){b.querySelector('[data-a="go"]').textContent=t}
+function tStop(b){if(b&&b._iv){clearInterval(b._iv);b._iv=null}}
+function tReset(b){tStop(b);b._run=false;b._done=false;b._left=tSecs(b)*1000;b.classList.remove('done');tPaint(b);tBtn(b,'ابدأ')}
+function tFinish(b){tStop(b);b._run=false;b._done=true;b._left=0;b.classList.add('done');tPaint(b,'انتهى');tBtn(b,'ابدأ');tBeep(880,0.25,0);tBeep(1175,0.35,0.3);tBeep(880,0.25,0.7);try{navigator.vibrate&&navigator.vibrate([250,120,250])}catch(e){}}
+function tGo(b){
+  if(b._run){tStop(b);b._run=false;b._left=Math.max(0,b._end-Date.now());tBtn(b,'متابعة');return}
+  if(tCur&&tCur!==b&&tCur._run){tStop(tCur);tCur._run=false;tCur._left=Math.max(0,tCur._end-Date.now());tBtn(tCur,'متابعة')}
+  if(b._done||!b._left)tReset(b);
+  tCur=b;b._run=true;b._end=Date.now()+b._left;b._last=-1;tBtn(b,'إيقاف مؤقت');
+  b._iv=setInterval(function(){
+    var left=b._end-Date.now();
+    if(left<=0){tFinish(b);return}
+    b._left=left;tPaint(b);
+    var s=Math.ceil(left/1000);
+    if(s<=3&&s!==b._last){b._last=s;tBeep(660,0.08,0)}
+  },200)}
+document.getElementById('v-ex').addEventListener('click',function(e){
+  var btn=e.target.closest('button[data-a]');if(!btn)return;
+  var b=btn.closest('.tmr');if(!b)return;
+  if(b._left==null)b._left=tSecs(b)*1000;
+  if(btn.dataset.a==='go')tGo(b);else tReset(b)});
+document.getElementById('v-ex').addEventListener('input',function(e){
+  var b=e.target.closest('.tmr');if(!b||b._run)return;
+  b._done=false;b.classList.remove('done');b._left=tSecs(b)*1000;tPaint(b);tBtn(b,'ابدأ')});
 $('exPlan').innerHTML=PLAN.map(function(p){return '<div><b>'+p[0]+'</b><span>'+X(p[1])+'</span></div>'}).join('');
 $('exWarm').innerHTML=WARM.map(exCard).join('');
 $('exStr').innerHTML=STR.map(exCard).join('');
