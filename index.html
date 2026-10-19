@@ -133,6 +133,7 @@ details.ex[open] summary::after{content:"\2212"}
 .tmr.done .tv{color:var(--k-ex)}
 .tin{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted)}
 .tin input{font:inherit;font-size:14px;width:68px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 6px}
+.ph{display:flex;gap:6px}.ph img{width:50%;border-radius:8px;background:#fff}
 .yt{display:inline-block;align-self:flex-start;color:var(--accent);font-weight:500;font-size:13px;text-decoration:underline;text-underline-offset:3px}
 .k-read{--k:var(--accent)}
 </style>
@@ -553,11 +554,13 @@ var EXTRA={
 'إطالة الفخذ الخلفي':{s:20,q:'إطالة الفخذ الخلفي بالعربي',f:{a:{p:[30,64],t:-40,arms:[[40,25],[45,25]],legs:[[0,0],[-55,140]]}}},
 'إطالة الربلة':{s:20,q:'إطالة عضلة الساق الربلة بالعربي',f:{a:{gx:70,t:-60,wall:88,arms:[[-5,-5],[0,-5]],legs:[[15,90],[140,140]]}}}
 };
+var IMGS={"دوران الرقبة والكتفين": "Shoulder_Circles", "دوران الذراعين": "Arm_Circles", "دوران الورك والركبتين": "Standing_Hip_Circles", "سكوات (Squat)": "Bodyweight_Squat", "ضغط (Push-up)": "Pushups", "بلانك (Plank)": "Plank", "طعنات (Lunges)": "Bodyweight_Walking_Lunge", "سكوات بالقفز": "Freehand_Jump_Squat", "ضغط عريض": "Push-Up_Wide", "جسر الأرداف": "Butt_Lift_Bridge", "بلانك جانبي": "Side_Bridge", "رفع الأرجل": "Flat_Bench_Lying_Leg_Raise", "حبل القفز": "Rope_Jumping", "إطالة الرقبة": "Side_Neck_Stretch", "إطالة الكتفين والصدر": "Chest_And_Front_Of_Shoulder_Stretch", "وضعية الطفل": "Childs_Pose", "إطالة الفخذ الأمامي": "All_Fours_Quad_Stretch", "إطالة الفخذ الخلفي": "Seated_Floor_Hamstring_Stretch", "إطالة الربلة": "Calf_Stretch_Hands_Against_Wall"};
+function photo(n,svg){var d=IMGS[n];if(!d)return svg;return '<div class="ph"><img src="img/'+d+'/0.jpg" alt="" loading="lazy" onerror="this.parentNode.nextSibling.style.display=\'\';this.parentNode.remove()"><img src="img/'+d+'/1.jpg" alt="" loading="lazy" onerror="this.remove()"></div><div style="display:none">'+svg+'</div>'}
 function fmtT(s){s=Math.max(0,Math.ceil(s));var m=Math.floor(s/60),r=s%60;return (m<10?'0':'')+m+':'+(r<10?'0':'')+r}
 var tmrN=0;
 function exCard(e){
   var x=EXTRA[e.n]||{},sec=x.s||30,id='tin'+(++tmrN);
-  return '<details class="ex"><summary><span>'+X(e.n)+'</span><small>'+X(e.d)+'</small></summary><div class="exb">'+figSvg(x.f)+
+  return '<details class="ex"><summary><span>'+X(e.n)+'</span><small>'+X(e.d)+'</small></summary><div class="exb">'+photo(e.n,figSvg(x.f))+
    '<p><b>العضلات:</b> '+X(e.m)+'</p><ol>'+e.s.map(function(t){return '<li>'+X(t)+'</li>'}).join('')+'</ol><p class="bad"><b>خطأ شائع:</b> '+X(e.x)+'</p>'+(e.t?'<p><b>نصيحة:</b> '+X(e.t)+'</p>':'')+
    '<div class="tmr"><span class="tv t">'+fmtT(sec)+'</span><label class="tin" for="'+id+'">ثواني <input id="'+id+'" type="number" inputmode="numeric" min="1" max="3600" value="'+sec+'"></label><button class="btn sm pri" data-a="go" type="button">ابدأ</button><button class="btn sm" data-a="rs" type="button">إعادة</button></div>'+
    '<a class="yt" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query='+encodeURIComponent(x.q||e.n)+'">شاهد الشرح على يوتيوب</a></div></details>'}
