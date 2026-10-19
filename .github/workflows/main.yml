@@ -17,6 +17,14 @@ jobs:
       - run: |
           mkdir -p www
           cp index.html www/index.html
+      - name: Add exercise photos (free-exercise-db, public domain)
+        continue-on-error: true
+        run: |
+          git clone --depth 1 https://github.com/yuhonas/free-exercise-db /tmp/fed
+          mkdir -p www/img
+          for d in Shoulder_Circles Arm_Circles Standing_Hip_Circles Bodyweight_Squat Pushups Plank Bodyweight_Walking_Lunge Freehand_Jump_Squat Push-Up_Wide Butt_Lift_Bridge Side_Bridge Flat_Bench_Lying_Leg_Raise Rope_Jumping Side_Neck_Stretch Chest_And_Front_Of_Shoulder_Stretch Childs_Pose All_Fours_Quad_Stretch Seated_Floor_Hamstring_Stretch Calf_Stretch_Hands_Against_Wall; do
+            cp -r "/tmp/fed/exercises/$d" "www/img/$d" || true
+          done
       - run: npm install
       - run: npx cap add android
       - name: Add adhan sounds
