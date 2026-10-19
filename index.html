@@ -776,4 +776,57 @@ $('sumGo').onclick=async function(){
   btn.disabled=false};
 })();
 </script>
+<script>
+/* AI exercise images (Gemini image model, user's key) */
+(function(){
+var EN={'دوران الرقبة والكتفين':['neck and shoulder rolls','neck and shoulders'],'دوران الذراعين':['arm circles','shoulders and deltoids'],'دوران الورك والركبتين':['hip and knee circles','hips and knees'],'المشي أو الجري في المكان':['jogging in place','legs and cardio'],'القفز المفتوح (Jumping Jacks)':['jumping jacks','full body cardio, calves and shoulders'],'سكوات (Squat)':['bodyweight squat','quadriceps and glutes'],'ضغط (Push-up)':['push-up','chest, triceps and shoulders'],'بلانك (Plank)':['forearm plank','abdominal core'],'طعنات (Lunges)':['forward lunge','quadriceps and glutes'],'سكوات بالقفز':['jump squat','quadriceps, glutes and calves'],'ضغط عريض':['wide-grip push-up','chest and shoulders'],'جسر الأرداف':['glute bridge','glutes and hamstrings'],'بلانك جانبي':['side plank','obliques'],'رفع الأرجل':['lying leg raise','lower abs'],'حبل القفز':['jump rope','calves and cardio'],'المشي السريع':['brisk walking','legs and cardio'],'إطالة الرقبة':['neck side stretch','neck muscles'],'إطالة الكتفين والصدر':['chest and shoulder stretch','chest and front deltoids'],'وضعية الطفل':["child's pose stretch",'back and hips'],'إطالة الفخذ الأمامي':['standing quad stretch','quadriceps'],'إطالة الفخذ الخلفي':['seated hamstring stretch','hamstrings'],'إطالة الربلة':['wall calf stretch','calf muscles']};
+var dbP=null;
+function db(){if(!dbP){dbP=new Promise(function(res,rej){var r=indexedDB.open('mawaqit-books',1);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('meta'))d.createObjectStore('meta',{keyPath:'id'});if(!d.objectStoreNames.contains('files'))d.createObjectStore('files')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}return dbP}
+function st(mode,fn){return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction('files',mode),rq=fn(t.objectStore('files'));t.oncomplete=function(){res(rq&&rq.result)};t.onerror=function(){rej(t.error)};t.onabort=function(){rej(t.error)}})})}
+function ls(k,d){try{var v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var DEF='gemini-2.5-flash-image';
+/* model field in settings */
+var gm=document.getElementById('gModel');
+if(gm&&gm.parentNode){var w=document.createElement('div');w.style.cssText='margin-top:8px';w.innerHTML='<label style="display:block;font-size:13px;margin-bottom:4px">نموذج توليد الصور</label><input id="gImg" type="text" dir="ltr" style="width:100%;box-sizing:border-box;padding:8px;border-radius:8px;border:1px solid var(--line,#8884);background:transparent;color:inherit">';gm.parentNode.insertAdjacentElement('afterend',w);var gi=document.getElementById('gImg');gi.value=ls('gi',DEF);gi.addEventListener('change',function(){lsSet('gi',gi.value.trim()||DEF)})}
+function url(b){return URL.createObjectURL(b)}
+function show(box,blob){var o=box.querySelector('.gout');o.innerHTML='<img alt="" style="width:100%;border-radius:10px;display:block"><button class="btn sm dng" data-g="del" type="button" style="margin-top:6px">حذف الصورة</button>';o.querySelector('img').src=url(blob);box.querySelector('[data-g="go"]').textContent='إعادة التوليد'}
+function name(d){var s=d.querySelector('summary span');return s?s.textContent:''}
+var cards=document.querySelectorAll('#v-ex details.ex');
+Array.prototype.forEach.call(cards,function(d){
+  var n=name(d);if(!EN[n])return;
+  var b=document.createElement('div');b.className='gen';b.dataset.n=n;b.style.cssText='display:flex;flex-direction:column;gap:6px';
+  b.innerHTML='<button class="btn sm" data-g="go" type="button">ولّد صورة بالذكاء الاصطناعي</button><div class="gmsg" style="font-size:13px" hidden></div><div class="gout"></div>';
+  var tmr=d.querySelector('.tmr');d.querySelector('.exb').insertBefore(b,tmr);
+  st('readonly',function(s){return s.get('img:'+n)}).then(function(v){if(v)show(b,v)}).catch(function(){})});
+function msg(b,t,bad){var m=b.querySelector('.gmsg');m.hidden=!t;m.textContent=t||'';m.style.color=bad?'var(--k-sleep,#c33)':'inherit'}
+function err(c){
+  if(c==='nokey')return 'أدخل مفتاح Gemini من الإعدادات أولاً.';
+  if(c==='net')return 'تعذر الاتصال. تأكد من الإنترنت، وهذه الميزة تعمل داخل تطبيق APK فقط.';
+  if(c===400)return 'رفض النموذج الطلب (400). غالباً اسم نموذج الصور لا يدعم توليد الصور أو الحساب لا يسمح به.';
+  if(c===403)return 'المفتاح غير مفعّل أو لا يملك صلاحية توليد الصور (403).';
+  if(c===404)return 'اسم نموذج الصور غير صحيح. عدّله من الإعدادات (نموذج توليد الصور).';
+  if(c===429)return 'تجاوزت الحد المجاني أو أن حسابك لا يشمل توليد الصور (429).';
+  if(c==='empty')return 'لم يرجع النموذج صورة. أعد المحاولة.';
+  return 'حدث خطأ غير متوقع ('+c+').'}
+function b64(s,mime){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:mime||'image/png'})}
+async function gen(n){
+  var key=ls('gk','');if(!key){var e0=new Error('x');e0.code='nokey';throw e0}
+  var en=EN[n],p='Create a high-quality 3D anatomical fitness-poster render of a muscular athlete performing '+en[0]+' with correct, safe form. Show the body from the clearest angle, with the '+en[1]+' highlighted in glowing red on a dark gradient background. Anatomically correct, exactly two arms and two legs, no text except a small rounded badge at the top reading "30 sec".';
+  var r;
+  try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(ls('gi',DEF))+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts:[{text:p}]}],generationConfig:{responseModalities:['IMAGE','TEXT']}})})}catch(e){var e1=new Error('x');e1.code='net';throw e1}
+  if(!r.ok){var e2=new Error('x');e2.code=r.status;throw e2}
+  var j=await r.json(),ps=(j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[];
+  for(var i=0;i<ps.length;i++){var id=ps[i].inlineData||ps[i].inline_data;if(id&&id.data)return b64(id.data,id.mimeType||id.mime_type)}
+  var e3=new Error('x');e3.code='empty';throw e3}
+document.getElementById('v-ex').addEventListener('click',async function(e){
+  var btn=e.target.closest('button[data-g]');if(!btn)return;
+  var box=btn.closest('.gen'),n=box.dataset.n;
+  if(btn.dataset.g==='del'){try{await st('readwrite',function(s){return s.delete('img:'+n)})}catch(x){}box.querySelector('.gout').innerHTML='';box.querySelector('[data-g="go"]').textContent='ولّد صورة بالذكاء الاصطناعي';return}
+  var go=box.querySelector('[data-g="go"]');go.disabled=true;var old=go.textContent;go.textContent='جارٍ التوليد... قد يستغرق دقيقة';msg(box,'');
+  try{var bl=await gen(n);try{await st('readwrite',function(s){return s.put(bl,'img:'+n)})}catch(x){}show(box,bl)}
+  catch(er){go.textContent=old;msg(box,err(er&&er.code),true)}
+  go.disabled=false});
+})();
+</script>
 </body></html>
